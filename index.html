@@ -800,7 +800,7 @@ function renderLogin() {
         ${logo}
         <div class="login-building">${escapeHtml(CONFIG.buildingName)}</div>
       </div>
-      <p>Logg inn med e-post og leilighetsnummer. Bruk leilighetsnummer <b>STYRE</b> for admin-visning.</p>
+      <p>Logg inn med e-post og leilighetsnummer.</p>
       <div class="fr">
         <label for="login-email">E-postadresse</label>
         <input id="login-email" type="email" placeholder="navn@example.no" autocomplete="email" inputmode="email" style="width: 100%;" />
@@ -1291,7 +1291,7 @@ function renderAdmin() {
               <td>Kl. ${slot.label}</td>
               <td>${m ? escapeHtml(m.name) : '–'}</td>
               <td>${escapeHtml(b.apartment)}</td>
-              <td style="font-size: 12px; color: var(--text-2);">${b.email ? escapeHtml(b.email) : '–'}</td>
+              <td style="font-size: 12px; color: var(--text-2);">${b.name ? escapeHtml(b.name) : '–'}</td>
               <td style="text-align:right;"><button class="adm-x" onclick="cancelBooking('${b.id}', true)">Slett</button></td>
             </tr>`;
           }).join('')}
@@ -1312,11 +1312,11 @@ function renderUserManagement() {
   // Samle unike e-post + leilighet fra alle bookinger
   const usersMap = {};
   state.bookings.forEach(b => {
-    if (b.email && b.apartment !== 'VEDLIKEHOLD') {
-      if (!usersMap[b.email]) usersMap[b.email] = { apartments: new Set(), count: 0, last: b.createdAt };
-      usersMap[b.email].apartments.add(b.apartment);
-      usersMap[b.email].count++;
-      if (b.createdAt > usersMap[b.email].last) usersMap[b.email].last = b.createdAt;
+    if (b.name && b.apartment !== 'VEDLIKEHOLD') {
+      if (!usersMap[b.name]) usersMap[b.name] = { apartments: new Set(), count: 0, last: b.createdAt };
+      usersMap[b.name].apartments.add(b.apartment);
+      usersMap[b.name].count++;
+      if (b.createdAt > usersMap[b.name].last) usersMap[b.name].last = b.createdAt;
     }
   });
   const users = Object.entries(usersMap)
