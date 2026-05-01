@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#fafaf7" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Wash.it" />
+<title>Wash.it</title>
+<style>
+  :root {
+    --bg: #fafaf7;
+    --surface: #ffffff;
+    --surface-2: #f1efe8;
+    --text: #2c2c2a;
+    --text-2: #5f5e5a;
+    --text-3: #888780;
+    --border: rgba(0,0,0,0.12);
+    --border-strong: rgba(0,0,0,0.22);
+    --info-bg: #E6F1FB;
+    --info-text: #0C447C;
+    --info-border: #185FA5;
+    --success-bg: #EAF3DE;
+    --success-text: #27500A;
+    --danger-bg: #FCEBEB;
+    --danger-text: #791F1F;
+    --danger-border: #A32D2D;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 880px; margin: 0 auto; padding: 24px 20px 60px; }
+  button { font-family: inherit; }
+  input, button {
+    font-size: 14px;
+  }
+  input[type="text"] {
+    padding: 8px 12px;
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    color: var(--text);
+    height: 36px;
+  }
+  input[type="text"]:focus {
+    outline: none;
+    border-color: var(--info-border);
+    box-shadow: 0 0 0 3px var(--info-bg);
+  }
+  button {
+    cursor: pointer;
+    background: var(--surface);
+    color: var(--text);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 8px 14px;
+    transition: background 0.12s, border-color 0.12s;
+  }
+  button:hover { background: var(--surface-2); border-color: var(--border-strong); }
+  button:active { transform: scale(0.98); }
+
+  .h { display: flex; align-items: center; justify-content: space-between; padding: 4px 0 16px; border-bottom: 0.5px solid var(--border); margin-bottom: 20px; gap: 12px; }
+  .h h1 { font-size: 22px; font-weight: 500; margin: 0; }
+  .h-r { display: flex; align-items: center; gap: 10px; }
+  .badge { background: var(--surface-2); padding: 6px 12px; border-radius: var(--radius-md); font-size: 13px; font-weight: 500; }
+  .badge.adm { background: var(--info-bg); color: var(--info-text); }
+
+  .tabs { display: flex; gap: 2px; border-bottom: 0.5px solid var(--border); margin-bottom: 20px; }
+  .tab { padding: 8px 18px; font-size: 14px; cursor: pointer; border: none; background: none; color: var(--text-2); border-bottom: 2px solid transparent; margin-bottom: -1px; border-radius: 0; }
+  .tab.active { color: var(--text); border-bottom-color: var(--text); font-weight: 500; }
+  .tab:hover { background: none; color: var(--text); }
+
+  .wnav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .wnav-l { display: flex; gap: 6px; align-items: center; }
+  .wnav button { padding: 6px 12px; font-size: 13px; }
+  .wlbl { font-size: 15px; font-weight: 500; }
+
+  .cal { display: grid; grid-template-columns: 90px repeat(7, 1fr); gap: 4px; }
+  .dh { font-size: 11px; color: var(--text-2); padding: 6px 0; text-align: center; text-transform: uppercase; letter-spacing: 0.04em; }
+  .dh.today { color: var(--info-text); }
+  .dh strong { display: block; font-size: 14px; color: var(--text); font-weight: 500; margin-top: 3px; text-transform: none; letter-spacing: 0; }
+  .dh.today strong { color: var(--info-text); }
+  .sl { font-size: 13px; color: var(--text); padding: 0 8px; display: flex; align-items: center; font-weight: 500; }
+  .cell { border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 6px 4px; font-size: 12px; text-align: center; cursor: pointer; background: var(--surface); height: 48px; display: flex; align-items: center; justify-content: center; transition: background 0.12s, border-color 0.12s; line-height: 1.2; }
+  .cell.av { color: var(--text-3); }
+  .cell.av:hover { background: var(--surface-2); border-color: var(--border-strong); color: var(--text); }
+  .cell.mine { background: var(--info-bg); color: var(--info-text); border-color: var(--info-border); font-weight: 500; }
+  .cell.mine:hover { background: var(--danger-bg); color: var(--danger-text); border-color: var(--danger-border); }
+  .cell.taken { background: var(--surface-2); color: var(--text-2); cursor: not-allowed; }
+  .cell.past { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
+
+  .legend { display: flex; gap: 16px; margin-top: 16px; font-size: 12px; color: var(--text-2); flex-wrap: wrap; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .dot { width: 10px; height: 10px; border-radius: 2px; border: 0.5px solid var(--border); display: inline-block; }
+  .dot.mine { background: var(--info-bg); border-color: var(--info-border); }
+  .dot.taken { background: var(--surface-2); }
+  .dot.maint { background: repeating-linear-gradient(45deg, var(--surface-2), var(--surface-2) 2px, transparent 2px, transparent 4px), var(--surface); border-color: var(--border-strong); border-style: dashed; }
+
+  .toast { padding: 10px 16px; border-radius: var(--radius-md); font-size: 13px; margin-bottom: 16px; }
+  .toast.success { background: var(--success-bg); color: var(--success-text); }
+  .toast.error { background: var(--danger-bg); color: var(--danger-text); }
+
+  .row { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border: 0.5px solid var(--border); border-radius: var(--radius-md); margin-bottom: 8px; background: var(--surface); }
+  .row .date { font-weight: 500; font-size: 15px; margin-bottom: 2px; }
+  .row .time { color: var(--text-2); font-size: 13px; }
+
+  .empty { text-align: center; padding: 40px 20px; color: var(--text-2); font-size: 14px; }
+
+  .lc { max-width: 400px; margin: 60px auto; padding: 36px 32px; background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); }
+  .lc h2 { margin: 0 0 8px; font-size: 20px; font-weight: 500; }
+  .lc p { margin: 0 0 20px; font-size: 14px; color: var(--text-2); line-height: 1.5; }
+  .fr { margin-bottom: 14px; }
+  .fr label { display: block; font-size: 12px; color: var(--text-2); margin-bottom: 6px; }
+  .helper { font-size: 12px; color: var(--text-3); margin-top: 18px; line-height: 1.5; }
+
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
+  .stat { background: var(--surface-2); padding: 14px 16px; border-radius: var(--radius-md); }
+  .stat .l { font-size: 12px; color: var(--text-2); margin-bottom: 4px; }
+  .stat .v { font-size: 24px; font-weight: 500; }
+
+  table.adm { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.adm th, table.adm td { padding: 10px 12px; text-align: left; border-bottom: 0.5px solid var(--border); }
+  table.adm th { font-weight: 500; font-size: 12px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.04em; }
+  .adm-x { background: none; border: none; color: var(--danger-text); cursor: pointer; font-size: 13px; padding: 4px 8px; }
+  .adm-x:hover { background: var(--danger-bg); }
+
+  .danger { background: var(--surface); color: var(--danger-text); border: 0.5px solid var(--danger-border); padding: 7px 14px; border-radius: var(--radius-md); font-size: 13px; cursor: pointer; }
+  .danger:hover { background: var(--danger-bg); border-color: var(--danger-border); }
+
+  .closed-note { font-size: 12px; color: var(--text-3); margin-top: 10px; text-align: right; }
+  .rules-bar { background: var(--info-bg); color: var(--info-text); padding: 10px 14px; border-radius: var(--radius-md); font-size: 13px; margin-bottom: 16px; }
+
+  .machine-switch { margin-top: 24px; padding-top: 14px; border-top: 0.5px solid var(--border); font-size: 12px; color: var(--text-3); text-align: center; }
+  .m-link { background: none; border: none; color: var(--text-2); font-size: 12px; padding: 2px 4px; cursor: pointer; text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 3px; }
+  .m-link:hover { background: none; color: var(--text); text-decoration-color: var(--text); }
+
+  .rules-page { max-width: 640px; }
+  .rules-page h3 { margin: 28px 0 10px; font-size: 16px; }
+  .rule-list { padding-left: 22px; margin: 0; }
+  .rule-list li { margin-bottom: 8px; line-height: 1.55; }
+  .rule-warning { background: #FFF6E6; border: 0.5px solid #C88A2C; border-left: 3px solid #C88A2C; color: #5C3F0E; padding: 16px 18px; border-radius: var(--radius-md); margin-bottom: 12px; }
+  .rule-warning h3 { color: #5C3F0E; font-size: 15px; }
+  .rule-info { background: var(--info-bg); border: 0.5px solid var(--info-border); border-left: 3px solid var(--info-border); color: var(--info-text); padding: 14px 18px; border-radius: var(--radius-md); margin-bottom: 12px; }
+  .rule-info h3 { color: var(--info-text); font-size: 14px; }
+  .rules-page a { color: var(--info-text); text-decoration: underline; text-underline-offset: 2px; }
+  .rules-page a:hover { text-decoration-thickness: 2px; }
+
+  .mine-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 12px; flex-wrap: wrap; }
+  .ics-all { font-size: 13px; padding: 6px 12px; }
+  .row-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+  .ics-btn { font-size: 12px; padding: 5px 10px; color: var(--text-2); border: 0.5px solid var(--border); background: var(--surface); border-radius: var(--radius-md); cursor: pointer; white-space: nowrap; }
+  .ics-btn:hover { background: var(--surface-2); color: var(--text); }
+
+  .admin-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; border: 0.5px dashed var(--border-strong); border-radius: var(--radius-md); margin-bottom: 14px; font-size: 13px; color: var(--text-2); background: var(--surface); }
+  .admin-bar.on { background: #FFF6E6; border-color: #C88A2C; color: #5C3F0E; border-style: solid; }
+  .admin-bar button { white-space: nowrap; }
+  .admin-bar .btn-active { background: #C88A2C; color: white; border-color: #C88A2C; }
+  .admin-bar .btn-active:hover { background: #B07820; border-color: #B07820; }
+
+  .cell.maint { background: repeating-linear-gradient(45deg, var(--surface-2), var(--surface-2) 4px, transparent 4px, transparent 8px), var(--surface); color: var(--text-2); border-color: var(--border-strong); border-style: dashed; cursor: not-allowed; }
+  .cell.maint:hover { background: var(--surface-2); }
+  .cell.block-target:hover { background: #FFF6E6; border-color: #C88A2C; color: #5C3F0E; }
+  h2 { font-size: 18px; font-weight: 500; }
+  h3 { font-size: 15px; font-weight: 500; margin: 0 0 12px; }
+
+  .dash-hero { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 22px 24px; margin-bottom: 18px; }
+  .dash-hero h2 { margin: 0 0 6px; font-size: 20px; }
+  .dash-hero p { margin: 0; color: var(--text-2); font-size: 14px; }
+  .dash-next { background: var(--info-bg); border: 0.5px solid var(--info-border); color: var(--info-text); border-radius: var(--radius-md); padding: 16px 18px; margin-top: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .dash-next .lbl { font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; opacity: 0.85; margin-bottom: 4px; }
+  .dash-next .val { font-size: 16px; font-weight: 500; }
+  .dash-next button { background: var(--info-text); color: white; border: none; padding: 8px 16px; font-weight: 500; }
+  .dash-next button:hover { background: var(--info-border); border-color: var(--info-border); }
+  .dash-empty-next { background: var(--surface-2); color: var(--text-2); border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 16px 18px; margin-top: 16px; font-size: 14px; }
+
+  .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 18px; }
+  .dash-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; text-align: left; cursor: pointer; transition: background 0.12s, border-color 0.12s, transform 0.06s; font-family: inherit; color: inherit; }
+  .dash-card:hover { background: var(--surface-2); border-color: var(--border-strong); }
+  .dash-card:active { transform: scale(0.99); }
+  .dash-card .icon { font-size: 22px; margin-bottom: 10px; }
+  .dash-card .ttl { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+  .dash-card .sub { font-size: 13px; color: var(--text-2); line-height: 1.4; }
+  .dash-card.adm-card { background: var(--info-bg); border-color: var(--info-border); color: var(--info-text); }
+  .dash-card.adm-card .sub { color: var(--info-text); opacity: 0.85; }
+  .dash-card.adm-card:hover { background: #d6e7f7; }
+
+  .dash-reminder { background: #FFF6E6; border: 0.5px solid #C88A2C; border-left: 3px solid #C88A2C; color: #5C3F0E; padding: 14px 18px; border-radius: var(--radius-md); margin-bottom: 18px; }
+  .dash-reminder h3 { color: #5C3F0E; font-size: 15px; margin: 0 0 6px; }
+  .dash-reminder p { margin: 0; font-size: 14px; line-height: 1.5; }
+  /* WASH.IT BRANDING */
+  .logo-svg, .logo-svg-large { display: inline-flex; align-items: center; gap: 8px; line-height: 1; }
+  .logo-mark { flex-shrink: 0; filter: drop-shadow(0 1px 2px rgba(24,95,165,0.15)); }
+  .logo-svg .logo-mark { width: 28px; height: 28px; }
+  .logo-svg-large .logo-mark { width: 48px; height: 48px; }
+  .logo-word { font-weight: 700; letter-spacing: -0.02em; color: var(--text); }
+  .logo-svg .logo-word { font-size: 20px; }
+  .logo-svg-large .logo-word { font-size: 30px; gap: 10px; }
+  .logo-svg-large { gap: 12px; }
+  .logo-dot { color: #185FA5; font-weight: 800; }
+  .h-l { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .logo-text { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; color: var(--text); }
+  .logo-img { height: 32px; max-width: 140px; }
+  .building-name { font-size: 12px; color: var(--text-3); }
+  .user-info { text-align: right; min-width: 0; }
+  .user-email { font-size: 11px; color: var(--text-3); margin-top: 3px; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .btn-small { padding: 8px 12px; font-size: 13px; min-height: 36px; }
+  .btn-primary-full { width: 100%; background: var(--text); color: var(--surface); border: none; padding: 12px; font-weight: 500; font-size: 15px; border-radius: var(--radius-md); cursor: pointer; }
+  .btn-primary-full:hover { background: #1a1a18; }
+  .login-brand { text-align: center; margin-bottom: 22px; }
+  .logo-text-large { font-size: 32px; font-weight: 600; letter-spacing: -0.02em; }
+  .logo-img-large { height: 56px; max-width: 220px; }
+  .login-building { font-size: 13px; color: var(--text-3); margin-top: 4px; }
+
+  /* MOBIL DAG-VISNING */
+  .day-strip { display: flex; gap: 6px; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; padding: 4px 0 8px; margin-bottom: 8px; scrollbar-width: none; overscroll-behavior-x: contain; touch-action: pan-x; }
+  .day-strip::-webkit-scrollbar { display: none; }
+  .day-chip { flex: 0 0 auto; padding: 8px 6px; min-width: 48px; min-height: 56px; border: 0.5px solid var(--border); border-radius: var(--radius-md); background: var(--surface); color: var(--text-2); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; }
+  .day-chip.today { color: var(--info-text); border-color: var(--info-border); }
+  .day-chip.selected { background: var(--text); color: var(--surface); border-color: var(--text); }
+  .day-chip.selected.today { background: var(--info-border); color: white; }
+  .dc-day { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .dc-num { font-size: 16px; font-weight: 500; }
+  .day-nav { display: flex; align-items: center; justify-content: space-between; padding: 8px 0 14px; gap: 10px; }
+  .day-nav-btn { width: 44px; height: 44px; padding: 0; font-size: 22px; line-height: 1; border-radius: 50%; }
+  .day-nav-label { font-weight: 500; font-size: 15px; flex: 1; text-align: center; }
+  .slot-list { display: flex; flex-direction: column; gap: 8px; }
+  .slot-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border: 0.5px solid var(--border); border-radius: var(--radius-md); background: var(--surface); cursor: pointer; min-height: 60px; transition: background 0.12s; }
+  .slot-row:hover { background: var(--surface-2); }
+  .slot-row-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .slot-row-time { font-size: 16px; font-weight: 500; }
+  .slot-row-status { font-size: 13px; color: var(--text-2); }
+  .slot-row-action { font-size: 14px; font-weight: 500; padding: 8px 14px; border-radius: var(--radius-md); background: var(--text); color: var(--surface); flex-shrink: 0; }
+  .slot-row.av .slot-row-status { color: var(--success-text); }
+  .slot-row.mine { border-color: var(--info-border); background: var(--info-bg); }
+  .slot-row.mine .slot-row-time, .slot-row.mine .slot-row-status { color: var(--info-text); }
+  .slot-row.mine .slot-row-action { background: var(--danger-text); color: white; }
+  .slot-row.taken { background: var(--surface-2); cursor: not-allowed; }
+  .slot-row.maint { background: repeating-linear-gradient(45deg, var(--surface-2), var(--surface-2) 4px, transparent 4px, transparent 8px), var(--surface); border-style: dashed; cursor: default; }
+  .slot-row.past { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+  .slot-row.block-target .slot-row-action { background: #C88A2C; }
+  .goto-today { text-align: center; margin-top: 14px; }
+
+  /* MOBILE OVERSTYRINGER */
+  * { -webkit-tap-highlight-color: transparent; }
+  input, button, select, textarea { font-size: 16px; } /* hindrer iOS auto-zoom */
+  body { padding-bottom: env(safe-area-inset-bottom); }
+  .tabs { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; scrollbar-width: none; overscroll-behavior-x: contain; touch-action: pan-x; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { white-space: nowrap; flex-shrink: 0; min-height: 44px; }
+  @media (max-width: 640px) {
+    .container { padding: 14px 14px 80px; }
+    .logo-text { font-size: 19px; }
+    .logo-img { height: 28px; }
+    .user-email { font-size: 10px; max-width: 100px; }
+    .badge { font-size: 12px; padding: 3px 8px; }
+    .stats { grid-template-columns: 1fr 1fr; }
+    .row { flex-wrap: wrap; }
+    .lc { margin: 16px auto; padding: 24px 20px; }
+    .logo-text-large { font-size: 28px; }
+    .closed-note { text-align: center; }
+    table.adm { font-size: 13px; }
+    .table-wrap, .adm-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -14px; padding: 0 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div id="app">
+    <p style="text-align:center; color: var(--text-2); padding: 60px 20px;">Laster …</p>
+  </div>
+</div>
+
+<script>
+// =====================================================================
+// KUNDE-KONFIGURASJON
+// Endre kun disse verdiene for å tilpasse appen til et nytt sameie.
+// =====================================================================
+const CONFIG = {
+  // SUPABASE (database)
+  supabaseUrl: 'https://qcnvehnactocsubgafmc.supabase.co',
+  supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjbnZlaG5hY3RvY3N1YmdhZm1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2MTAxOTksImV4cCI6MjA5MzE4NjE5OX0.B5POzkO7T8EiYu72YybrGW1nI-i57z_uBXadlPLPUSE',
+
+  // BRANDING
+  productName: 'Wash.it',
+  logoUrl: null, // Bytt til URL når logo er klar
+  buildingName: 'Uranienborgveien 13',
+
+  // Maks antall bookinger per leilighet per uke (gjelder på tvers av maskiner)
+  maxBookingsPerWeek: 3,
+
+  // Tillatte ukedager. ISO-format: 1=mandag, 2=tirsdag, ... 7=søndag
+  // Eksempel: [1,2,3,4,5,6,7] = alle dager, [1,2,3,4,5,6] = uten søndag
+  allowedDaysOfWeek: [1, 2, 3, 4, 5, 6],
+
+  // Vaskemaskiner. Én eller flere. Endre antall og navn etter sameiet.
+  // For ett fellesvaskeri: bruk én maskin, f.eks. [{ id: 'm1', name: 'Vaskeri' }]
+  machines: [
+    { id: 'm1', name: '1. etg' },
+    { id: 'm2', name: '2. etg' },
+    { id: 'm3', name: '3. etg' },
+    { id: 'm4', name: '4. etg' },
+    { id: 'm5', name: '5. etg' },
+    { id: 'm6', name: '6. etg' }
+  ],
+
+  // Tidsluker. Endre lengde, antall eller tidspunkter etter behov.
+  slots: [
+    { id: 's0810', label: '08–10', endHour: 10 },
+    { id: 's1012', label: '10–12', endHour: 12 },
+    { id: 's1214', label: '12–14', endHour: 14 },
+    { id: 's1416', label: '14–16', endHour: 16 },
+    { id: 's1618', label: '16–18', endHour: 18 },
+    { id: 's1820', label: '18–20', endHour: 20 },
+    { id: 's2022', label: '20–22', endHour: 22 }
+  ],
+
+  // Hvor mange minutter før start kan en booking ikke lenger avbestilles.
+  // Sett til 0 for å tillate avbestilling helt frem til start.
+  cancelCutoffMinutes: 120,
+
+  // Tekst som vises under kalenderen (typisk "stengt"-info)
+  closedNote: 'Vaskeriet er stengt 22:00–08:00, samt søndager'
+};
+// =====================================================================
+
+const SLOTS = CONFIG.slots;
+const DAYS = ['Man', 'Tir', 'Ons', 'Tor', 'Fre', 'Lør', 'Søn'];
+const MONTHS = ['januar','februar','mars','april','mai','juni','juli','august','september','oktober','november','desember'];
+const MONTHS_S = ['jan','feb','mar','apr','mai','jun','jul','aug','sep','okt','nov','des'];
+const MAX_PER_WEEK = CONFIG.maxBookingsPerWeek;
+const HOURS_PER_SLOT = SLOTS.length > 0 ? (SLOTS[0].endHour - parseInt(SLOTS[0].label.split('–')[0])) : 2;
+
+// Hjelper: er en gitt dato en tillatt vaskedag?
+function isAllowedDay(date) {
+  const isoDay = date.getDay() === 0 ? 7 : date.getDay(); // søndag=7
+  return CONFIG.allowedDaysOfWeek.includes(isoDay);
+}
+
+// Hjelper: starttidspunkt for en gitt slot på en gitt dato
+function getSlotStart(date, slotId) {
+  const slot = SLOTS.find(s => s.id === slotId);
+  const t = new Date(date);
+  t.setHours(slot.endHour - HOURS_PER_SLOT, 0, 0, 0);
+  return t;
+}
+
+// Hjelper: kan denne bookingen avbestilles av beboer (ikke admin)?
+function canCancel(dateISO, slotId) {
+  const start = getSlotStart(new Date(dateISO), slotId);
+  const cutoff = new Date(start.getTime() - CONFIG.cancelCutoffMinutes * 60 * 1000);
+  return new Date() < cutoff;
+}
+
+const state = {
+  bookings: [], apartment: null, email: null, weekStart: null,
+  view: 'oversikt', toast: null, toastTimer: null,
+  selectedMachine: CONFIG.machines[0].id,
+  adminBlockMode: false,
+  blockedEmails: [],
+  isMobile: window.matchMedia('(max-width: 640px)').matches,
+  selectedDayOffset: 0
+};
+
+window.matchMedia('(max-width: 640px)').addEventListener('change', e => {
+  state.isMobile = e.matches; render();
+});
+
+// ============================================================
+// SUPABASE-API
+// ============================================================
+const SB_HEADERS = {
+  'apikey': CONFIG.supabaseKey,
+  'Authorization': `Bearer ${CONFIG.supabaseKey}`,
+  'Content-Type': 'application/json',
+  'Prefer': 'return=minimal'
+};
+
+async function sbFetch(path, options = {}) {
+  const url = `${CONFIG.supabaseUrl}/rest/v1${path}`;
+  const res = await fetch(url, {
+    ...options,
+    headers: { ...SB_HEADERS, ...(options.headers || {}) }
+  });
+  if (!res.ok) {
+    const txt = await res.text().catch(() => '');
+    throw new Error(`Supabase ${res.status}: ${txt}`);
+  }
+  if (res.status === 204) return null;
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
+}
+
+async function loadBookings() {
+  try {
+    const data = await sbFetch('/bookings?select=*', {
+      headers: { 'Prefer': 'return=representation' }
+    });
+    const def = CONFIG.machines[0].id;
+    // Mapper fra database-format (snake_case) til app-format (camelCase)
+    return (data || []).map(b => ({
+      id: b.id,
+      apartment: b.apartment,
+      name: b.name,
+      date: b.date,
+      slot: b.slot,
+      machine: b.machine || def,
+      createdAt: b.created_at
+    }));
+  } catch (e) {
+    console.error('loadBookings:', e);
+    showToast('Kunne ikke hente bookinger – sjekk nettforbindelsen', 'error');
+    return [];
+  }
+}
+
+async function saveBooking(booking) {
+  try {
+    await sbFetch('/bookings', {
+      method: 'POST',
+      body: JSON.stringify({
+        id: booking.id,
+        apartment: booking.apartment,
+        name: booking.name || null,
+        date: booking.date,
+        slot: booking.slot,
+        machine: booking.machine
+      })
+    });
+    return true;
+  } catch (e) {
+    console.error('saveBooking:', e);
+    showToast('Kunne ikke lagre booking', 'error');
+    return false;
+  }
+}
+
+async function deleteBookingFromDb(id) {
+  try {
+    await sbFetch(`/bookings?id=eq.${encodeURIComponent(id)}`, { method: 'DELETE' });
+    return true;
+  } catch (e) {
+    console.error('deleteBooking:', e);
+    showToast('Kunne ikke slette booking', 'error');
+    return false;
+  }
+}
+
+async function deleteAllBookings() {
+  try {
+    await sbFetch('/bookings?id=neq.__none__', { method: 'DELETE' });
+    return true;
+  } catch (e) {
+    console.error('deleteAllBookings:', e);
+    return false;
+  }
+}
+
+async function loadBlockedUsers() {
+  try {
+    const data = await sbFetch('/blocked_users?select=identifier', {
+      headers: { 'Prefer': 'return=representation' }
+    });
+    return (data || []).map(b => b.identifier);
+  } catch (e) {
+    console.error('loadBlockedUsers:', e);
+    return [];
+  }
+}
+
+async function blockUserInDb(identifier) {
+  try {
+    await sbFetch('/blocked_users', {
+      method: 'POST',
+      body: JSON.stringify({ identifier })
+    });
+    return true;
+  } catch (e) {
+    console.error('blockUser:', e);
+    return false;
+  }
+}
+
+async function unblockUserInDb(identifier) {
+  try {
+    await sbFetch(`/blocked_users?identifier=eq.${encodeURIComponent(identifier)}`, { method: 'DELETE' });
+    return true;
+  } catch (e) {
+    console.error('unblockUser:', e);
+    return false;
+  }
+}
+
+// Innlogging lagres fortsatt lokalt (sesjon på enheten)
+function loadEmail() { try { return localStorage.getItem('vaskeri:email'); } catch { return null; } }
+function saveEmail(e) { try { localStorage.setItem('vaskeri:email', e); } catch(e2) {} }
+function clearEmail() { try { localStorage.removeItem('vaskeri:email'); } catch(e) {} }
+function loadApt() { try { return localStorage.getItem('vaskeri:apt'); } catch { return null; } }
+function saveApt(a) { try { localStorage.setItem('vaskeri:apt', a); } catch(e) {} }
+function clearApt() { try { localStorage.removeItem('vaskeri:apt'); } catch(e) {} }
+
+function getMonday(d) {
+  const x = new Date(d); x.setHours(0,0,0,0);
+  const day = x.getDay() || 7;
+  x.setDate(x.getDate() - day + 1);
+  return x;
+}
+function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
+function isoDate(d) {
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function isPast(date, slotId) {
+  const slot = SLOTS.find(s => s.id === slotId);
+  const end = new Date(date); end.setHours(slot.endHour, 0, 0, 0);
+  return end < new Date();
+}
+function isToday(d) { return d.toDateString() === new Date().toDateString(); }
+function getWeekNum(d) {
+  const x = new Date(d); x.setHours(0,0,0,0);
+  x.setDate(x.getDate() + 4 - (x.getDay() || 7));
+  return Math.ceil((((x - new Date(x.getFullYear(),0,1)) / 86400000) + 1) / 7);
+}
+function formatWeekRange(s) {
+  const e = addDays(s, 6);
+  if (s.getMonth() === e.getMonth()) {
+    return `Uke ${getWeekNum(s)} · ${s.getDate()}.–${e.getDate()}. ${MONTHS_S[e.getMonth()]}`;
+  }
+  return `Uke ${getWeekNum(s)} · ${s.getDate()}. ${MONTHS_S[s.getMonth()]} – ${e.getDate()}. ${MONTHS_S[e.getMonth()]}`;
+}
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function isAdmin() { return state.apartment === 'STYRE' || state.apartment === 'ADMIN'; }
+
+function showToast(msg, type='success') {
+  state.toast = { msg, type };
+  render();
+  if (state.toastTimer) clearTimeout(state.toastTimer);
+  state.toastTimer = setTimeout(() => { state.toast = null; render(); }, 3000);
+}
+
+// Hjelper: trekk ut etasje fra leilighetsnummer (f.eks. H0307 -> 3)
+// Norsk standard: [A-Z]NNNN der NN i posisjon 2-3 er etasjen.
+function parseApartmentFloor(apt) {
+  const m = apt.match(/^[A-Z](\d{2})\d{2}$/);
+  if (!m) return null;
+  return parseInt(m[1], 10);
+}
+
+// ICS / kalendereksport: genererer .ics-fil for én eller flere bookinger.
+// Bruker "floating time" (uten tidssone) – alle kalender-apper viser dette
+// som lokal tid, som er det vi vil her.
+function formatIcsDate(d) {
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+}
+function bookingToIcsEvent(b) {
+  const slot = SLOTS.find(s => s.id === b.slot);
+  const machine = CONFIG.machines.find(m => m.id === b.machine);
+  const start = new Date(b.date);
+  start.setHours(slot.endHour - HOURS_PER_SLOT, 0, 0, 0);
+  const end = new Date(b.date);
+  end.setHours(slot.endHour, 0, 0, 0);
+  const summary = `Vask${machine ? ' (' + machine.name + ')' : ''}`;
+  return [
+    'BEGIN:VEVENT',
+    `UID:${b.id}@vaskeribooking`,
+    `DTSTAMP:${formatIcsDate(new Date())}`,
+    `DTSTART:${formatIcsDate(start)}`,
+    `DTEND:${formatIcsDate(end)}`,
+    `SUMMARY:${summary}`,
+    'LOCATION:Vaskeriet',
+    `DESCRIPTION:Booket vasketid for leilighet ${b.apartment}`,
+    'END:VEVENT'
+  ].join('\r\n');
+}
+function generateIcs(bookings) {
+  return [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Vaskeribooking//NO',
+    ...bookings.map(bookingToIcsEvent),
+    'END:VCALENDAR'
+  ].join('\r\n');
+}
+function downloadIcs(filename, content) {
+  const blob = new Blob([content], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function downloadBookingIcs(id) {
+  const b = state.bookings.find(x => x.id === id);
+  if (!b) return;
+  const slot = SLOTS.find(s => s.id === b.slot);
+  const safeLabel = slot.label.replace(/–/g, '-');
+  downloadIcs(`vask-${b.date}-${safeLabel}.ics`, generateIcs([b]));
+}
+function downloadAllUpcomingIcs() {
+  const upcoming = state.bookings.filter(b =>
+    b.apartment === state.apartment && !isPast(new Date(b.date), b.slot)
+  );
+  if (upcoming.length === 0) {
+    showToast('Ingen kommende bookinger å eksportere', 'error'); return;
+  }
+  downloadIcs('vasketider.ics', generateIcs(upcoming));
+}
+
+function login(emailInput, aptInput) {
+  const email = (emailInput || '').trim().toLowerCase();
+  const apt = (aptInput || '').trim().toUpperCase();
+  if (!email) { showToast('Skriv inn e-postadresse', 'error'); return; }
+  if (!apt) { showToast('Skriv inn leilighetsnummer', 'error'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('Ugyldig e-postadresse', 'error'); return; }
+  if (state.blockedEmails.includes(email)) {
+    showToast('Denne e-postadressen er sperret. Kontakt styret.', 'error'); return;
+  }
+  state.email = email;
+  state.apartment = apt;
+
+  // Sett standardmaskin basert på beboerens etasje
+  const floor = parseApartmentFloor(apt);
+  if (floor !== null) {
+    const machineId = `m${floor}`;
+    if (CONFIG.machines.find(m => m.id === machineId)) {
+      state.selectedMachine = machineId;
+    }
+  }
+
+  saveApt(apt); saveEmail(email); render();
+}
+function logout() {
+  state.apartment = null; state.email = null;
+  clearApt(); clearEmail();
+  state.view = 'oversikt'; render();
+}
+
+async function bookSlot(dateISO, slotId) {
+  if (!state.apartment) return;
+  const machine = state.selectedMachine;
+
+  // Hent fersk data først – unngår dobbeltbooking
+  await refreshBookings();
+
+  // Admin sperremodus
+  if (isAdmin() && state.adminBlockMode) {
+    const exists = state.bookings.find(b => b.date === dateISO && b.slot === slotId && b.machine === machine);
+    if (exists) { showToast('Tidspunktet er allerede booket eller sperret', 'error'); return; }
+    const block = {
+      id: 'block_' + Date.now().toString(36) + Math.random().toString(36).slice(2,5),
+      apartment: 'VEDLIKEHOLD', name: state.email, date: dateISO, slot: slotId, machine
+    };
+    if (await saveBooking(block)) {
+      state.bookings.push({ ...block, createdAt: new Date().toISOString() });
+      showToast('Sperret for vedlikehold'); render();
+    }
+    return;
+  }
+
+  if (state.bookings.find(b => b.date === dateISO && b.slot === slotId && b.machine === machine)) {
+    showToast('Tidspunktet er allerede tatt', 'error'); render(); return;
+  }
+  const date = new Date(dateISO);
+  if (!isAllowedDay(date)) { showToast('Vasking er ikke tillatt denne ukedagen', 'error'); return; }
+  if (isPast(date, slotId)) { showToast('Kan ikke booke et tidspunkt som har vært', 'error'); return; }
+  if (!isAdmin()) {
+    const ws = getMonday(date), we = addDays(ws, 7);
+    const mine = state.bookings.filter(b =>
+      b.apartment === state.apartment &&
+      new Date(b.date) >= ws && new Date(b.date) < we
+    );
+    if (mine.length >= MAX_PER_WEEK) {
+      showToast(`Maks ${MAX_PER_WEEK} bookinger (${MAX_PER_WEEK * HOURS_PER_SLOT} timer) per uke per leilighet`, 'error'); return;
+    }
+  }
+  const newBooking = {
+    id: 'b_' + Date.now().toString(36) + Math.random().toString(36).slice(2,5),
+    apartment: state.apartment, name: state.email, date: dateISO, slot: slotId, machine
+  };
+  if (await saveBooking(newBooking)) {
+    state.bookings.push({ ...newBooking, createdAt: new Date().toISOString() });
+    showToast('Booking bekreftet'); render();
+  }
+}
+
+async function cancelBooking(id, isAdminCancel) {
+  const b = state.bookings.find(x => x.id === id);
+  if (!b) return;
+  if (!isAdminCancel && b.apartment !== state.apartment) {
+    showToast('Du kan kun avbestille egne bookinger', 'error'); return;
+  }
+  if (!isAdminCancel && !canCancel(b.date, b.slot)) {
+    const h = CONFIG.cancelCutoffMinutes / 60;
+    const f = h === Math.floor(h) ? h : h.toFixed(1);
+    showToast(`Avbestilling er stengt mindre enn ${f} timer før start`, 'error'); return;
+  }
+  if (await deleteBookingFromDb(id)) {
+    state.bookings = state.bookings.filter(x => x.id !== id);
+    showToast('Booking avbestilt'); render();
+  }
+}
+
+async function resetAll() {
+  if (!confirm('Slette ALLE bookinger? Kan ikke angres.')) return;
+  if (await deleteAllBookings()) {
+    state.bookings = [];
+    showToast('Alle bookinger slettet'); render();
+  }
+}
+
+async function refreshBookings() {
+  state.bookings = await loadBookings();
+}
+
+function setView(v) { state.view = v; render(); }
+function navigateWeek(delta) { state.weekStart = addDays(state.weekStart, delta * 7); render(); }
+function goToCurrentWeek() {
+  state.weekStart = getMonday(new Date());
+  state.selectedDayOffset = computeTodayOffset();
+  render();
+}
+function computeTodayOffset() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  for (let i = 0; i < 7; i++) {
+    const d = addDays(state.weekStart || getMonday(new Date()), i);
+    if (isAllowedDay(d) && d.getTime() === today.getTime()) return i;
+  }
+  return 0;
+}
+function navigateDay(delta) {
+  let candidate = addDays(state.weekStart, state.selectedDayOffset + delta);
+  let safety = 14;
+  while (!isAllowedDay(candidate) && safety-- > 0) candidate = addDays(candidate, delta);
+  const ws = getMonday(candidate);
+  state.weekStart = ws;
+  state.selectedDayOffset = Math.round((candidate - ws) / 86400000);
+  render();
+}
+function selectMachine(id) { state.selectedMachine = id; render(); }
+function toggleBlockMode() { state.adminBlockMode = !state.adminBlockMode; render(); }
+
+function render() {
+  const app = document.getElementById('app');
+  if (!state.apartment) {
+    app.innerHTML = renderLogin();
+    document.getElementById('login-email')?.focus();
+    return;
+  }
+  app.innerHTML = `
+    ${renderHeader()}
+    ${renderTabs()}
+    ${state.toast ? `<div class="toast ${state.toast.type}">${escapeHtml(state.toast.msg)}</div>` : ''}
+    ${state.view === 'oversikt' ? renderDashboard() : ''}
+    ${state.view === 'kalender' ? renderCalendar() : ''}
+    ${state.view === 'mine' ? renderMine() : ''}
+    ${state.view === 'tidligere' ? renderPast() : ''}
+    ${state.view === 'regler' ? renderRules() : ''}
+    ${state.view === 'styre' && isAdmin() ? renderAdmin() : ''}
+  `;
+}
+
+function renderLogoSvg(size) {
+  // Wash.it logo: stilisert vaskemaskin (front-load) + wordmark.
+  const isLarge = size === 'large';
+  const cls = isLarge ? 'logo-svg-large' : 'logo-svg';
+  return `
+    <div class="${cls}" aria-label="Wash.it">
+      <svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" class="logo-mark">
+        <rect x="4" y="4" width="36" height="36" rx="8" fill="#fff" stroke="#185FA5" stroke-width="1.5"/>
+        <rect x="4" y="4" width="36" height="9" rx="8" fill="#185FA5"/>
+        <rect x="4" y="9" width="36" height="4" fill="#185FA5"/>
+        <circle cx="10" cy="8.5" r="1.2" fill="#fff" opacity="0.7"/>
+        <circle cx="14" cy="8.5" r="1.2" fill="#fff" opacity="0.7"/>
+        <circle cx="22" cy="27" r="9" fill="#fff" stroke="#185FA5" stroke-width="1.2"/>
+        <circle cx="22" cy="27" r="5" fill="#B5D4F4"/>
+        <path d="M 17 27 Q 19 25 22 27 T 27 27" stroke="#fff" stroke-width="1.5" fill="none"/>
+      </svg>
+      <span class="logo-word">Wash<span class="logo-dot">.</span>it</span>
+    </div>
+  `;
+}
+
+function renderLogin() {
+  const logo = CONFIG.logoUrl
+    ? `<img src="${escapeHtml(CONFIG.logoUrl)}" alt="${escapeHtml(CONFIG.productName)}" class="logo-img-large" />`
+    : renderLogoSvg('large');
+  return `
+    <div class="lc">
+      <div class="login-brand">
+        ${logo}
+        <div class="login-building">${escapeHtml(CONFIG.buildingName)}</div>
+      </div>
+      <p>Logg inn med e-post og leilighetsnummer. Bruk leilighetsnummer <b>STYRE</b> for admin-visning.</p>
+      <div class="fr">
+        <label for="login-email">E-postadresse</label>
+        <input id="login-email" type="email" placeholder="navn@example.no" autocomplete="email" inputmode="email" style="width: 100%;" />
+      </div>
+      <div class="fr">
+        <label for="login-apt">Leilighetsnummer</label>
+        <input id="login-apt" type="text" placeholder="f.eks. H0307" autocomplete="off"
+          onkeydown="if(event.key==='Enter')login(document.getElementById('login-email').value, this.value)" style="width: 100%;" />
+      </div>
+      <button onclick="login(document.getElementById('login-email').value, document.getElementById('login-apt').value)" class="btn-primary-full">Logg inn</button>
+      <p class="helper">Alle bookinger loggføres med e-postadresse og tidsstempel.</p>
+    </div>
+  `;
+}
+
+function renderHeader() {
+  const logo = CONFIG.logoUrl
+    ? `<img src="${escapeHtml(CONFIG.logoUrl)}" alt="${escapeHtml(CONFIG.productName)}" class="logo-img" />`
+    : renderLogoSvg('small');
+  return `
+    <div class="h">
+      <div class="h-l">
+        ${logo}
+        <div class="building-name">${escapeHtml(CONFIG.buildingName)}</div>
+      </div>
+      <div class="h-r">
+        <div class="user-info">
+          <div class="badge ${isAdmin() ? 'adm' : ''}">${escapeHtml(state.apartment)}</div>
+          ${state.email ? `<div class="user-email">${escapeHtml(state.email)}</div>` : ''}
+        </div>
+        <button onclick="logout()" class="btn-small">Logg ut</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderTabs() {
+  const tabs = [['oversikt','Oversikt'],['kalender','Kalender'],['mine','Mine bookinger'],['tidligere','Tidligere'],['regler','Husregler']];
+  if (isAdmin()) tabs.push(['styre','Styre']);
+  return `<div class="tabs">${tabs.map(([id, label]) =>
+    `<button class="tab ${state.view === id ? 'active' : ''}" onclick="setView('${id}')">${label}</button>`
+  ).join('')}</div>`;
+}
+
+function renderDashboard() {
+  const now = new Date();
+  const ws = getMonday(now), we = addDays(ws, 7);
+
+  const myThisWeek = state.bookings.filter(b =>
+    b.apartment === state.apartment &&
+    new Date(b.date) >= ws && new Date(b.date) < we
+  ).length;
+
+  const myUpcoming = state.bookings
+    .filter(b => b.apartment === state.apartment && !isPast(new Date(b.date), b.slot))
+    .sort((a, b) => a.date.localeCompare(b.date) || SLOTS.findIndex(s => s.id === a.slot) - SLOTS.findIndex(s => s.id === b.slot));
+
+  const myPast = state.bookings.filter(b => b.apartment === state.apartment && isPast(new Date(b.date), b.slot)).length;
+
+  let nextBlock;
+  if (myUpcoming.length > 0) {
+    const b = myUpcoming[0];
+    const d = new Date(b.date);
+    const slot = SLOTS.find(s => s.id === b.slot);
+    const m = CONFIG.machines.find(x => x.id === b.machine);
+    const todayStr = isoDate(d) === isoDate(now) ? 'I dag' : (isoDate(d) === isoDate(addDays(now, 1)) ? 'I morgen' : `${DAYS[(d.getDay()+6)%7]} ${d.getDate()}. ${MONTHS[d.getMonth()]}`);
+    nextBlock = `
+      <div class="dash-next">
+        <div>
+          <div class="lbl">Neste vasketid</div>
+          <div class="val">${todayStr} · kl. ${slot.label}${m ? ' · ' + escapeHtml(m.name) : ''}</div>
+        </div>
+        <button onclick="setView('mine')">Se mine bookinger</button>
+      </div>
+    `;
+  } else {
+    nextBlock = `
+      <div class="dash-empty-next">
+        Du har ingen kommende bookinger. <button class="m-link" onclick="setView('kalender')">Book en tid i kalenderen</button>.
+      </div>
+    `;
+  }
+
+  const remaining = Math.max(0, MAX_PER_WEEK - myThisWeek);
+
+  const cards = [
+    { view: 'kalender', icon: '📅', ttl: 'Kalender', sub: 'Se ledige tider og book ny vasketid.' },
+    { view: 'mine', icon: '🧺', ttl: `Mine bookinger (${myUpcoming.length})`, sub: 'Kommende vasketider og avbestilling.' },
+    { view: 'tidligere', icon: '🕘', ttl: `Tidligere (${myPast})`, sub: 'Historikk over fullførte vasketider.' },
+    { view: 'regler', icon: '📖', ttl: 'Husregler', sub: 'Bruk av maskinene og rutiner i vaskeriet.' }
+  ];
+  if (isAdmin()) {
+    cards.push({ view: 'styre', icon: '⚙️', ttl: 'Styre', sub: 'Administrer bookinger, sperringer og brukere.', adm: true });
+  }
+
+  return `
+    <div class="dash-hero">
+      <h2>Hei, ${escapeHtml(state.apartment)} 👋</h2>
+      <p>Du har brukt <b>${myThisWeek} av ${MAX_PER_WEEK}</b> bookinger denne uken — <b>${remaining}</b> ${remaining === 1 ? 'vasketid' : 'vasketider'} igjen.</p>
+      ${nextBlock}
+    </div>
+    <div class="dash-reminder">
+      <h3>Maks 6 timer vasketid per uke</h3>
+      <p>Hver leilighet har inntil 6 timer (3 bookinger à 2 timer) per uke inkludert alle etasjer. Dette sikrer rettferdig tilgang for alle beboere.</p>
+    </div>
+    <div class="dash-grid">
+      ${cards.map(c => `
+        <button class="dash-card ${c.adm ? 'adm-card' : ''}" onclick="setView('${c.view}')">
+          <div class="icon">${c.icon}</div>
+          <div class="ttl">${c.ttl}</div>
+          <div class="sub">${c.sub}</div>
+        </button>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderCalendar() {
+  const ws = state.weekStart;
+  const today = new Date();
+  const isCurrentWeek = isoDate(ws) === isoDate(getMonday(today));
+  const machine = state.selectedMachine;
+
+  // Bygg liste over synlige dager basert på CONFIG
+  const visibleDays = [];
+  for (let i = 0; i < 7; i++) {
+    const d = addDays(ws, i);
+    if (isAllowedDay(d)) visibleDays.push({ index: i, date: d });
+  }
+
+  // MOBIL: én dag av gangen
+  if (state.isMobile) {
+    return renderMobileCalendar(ws, visibleDays, machine, isCurrentWeek);
+  }
+
+  const dayHeaders = ['<div></div>'];
+  visibleDays.forEach(({ index: i, date: d }) => {
+    dayHeaders.push(`<div class="dh ${isToday(d) ? 'today' : ''}">${DAYS[i]}<strong>${d.getDate()}.</strong></div>`);
+  });
+
+  const slotRows = SLOTS.map(slot => {
+    const cells = [`<div class="sl">${slot.label}</div>`];
+    visibleDays.forEach(({ date: d }) => {
+      const dISO = isoDate(d);
+      const booking = state.bookings.find(b => b.date === dISO && b.slot === slot.id && b.machine === machine);
+      const past = isPast(d, slot.id);
+      let cls = 'cell', label = 'Ledig', onclick = '', title;
+      if (booking) {
+        if (booking.apartment === 'VEDLIKEHOLD') {
+          cls += ' maint'; label = 'Sperret';
+          if (isAdmin()) {
+            onclick = `onclick="cancelBooking('${booking.id}', true)"`;
+            title = 'Sperret for vedlikehold. Klikk for å fjerne.';
+          } else {
+            title = 'Sperret for vedlikehold';
+          }
+        } else if (booking.apartment === state.apartment) {
+          cls += ' mine'; label = 'Du'; onclick = `onclick="cancelBooking('${booking.id}', false)"`;
+          title = 'Klikk for å avbestille';
+        } else {
+          cls += ' taken'; label = escapeHtml(booking.apartment);
+          title = `Booket av ${booking.apartment}`;
+        }
+      } else {
+        cls += ' av';
+        onclick = `onclick="bookSlot('${dISO}','${slot.id}')"`;
+        if (isAdmin() && state.adminBlockMode) {
+          cls += ' block-target';
+          title = 'Klikk for å sperre for vedlikehold';
+        } else {
+          title = 'Klikk for å booke';
+        }
+      }
+      if (past) { cls += ' past'; title = 'Tidspunktet har vært'; }
+      cells.push(`<div class="${cls}" ${onclick} title="${title}">${label}</div>`);
+    });
+    return cells.join('');
+  }).join('');
+
+  const myThisWeek = state.bookings.filter(b => {
+    const ws2 = getMonday(state.weekStart), we = addDays(ws2, 7);
+    return b.apartment === state.apartment && new Date(b.date) >= ws2 && new Date(b.date) < we;
+  }).length;
+
+  const gridCols = `90px repeat(${visibleDays.length}, 1fr)`;
+
+  // Liten maskin-switcher nederst – kun andre maskiner enn den valgte
+  const otherMachines = CONFIG.machines.filter(m => m.id !== state.selectedMachine);
+  const machineSwitcher = otherMachines.length > 0 ? `
+    <div class="machine-switch">
+      Bytt maskin: ${otherMachines.map(m =>
+        `<button class="m-link" onclick="selectMachine('${m.id}')">${escapeHtml(m.name)}</button>`
+      ).join(' · ')}
+    </div>
+  ` : '';
+
+  const currentMachine = CONFIG.machines.find(m => m.id === state.selectedMachine);
+  const machineName = currentMachine ? currentMachine.name : '–';
+
+  // Admin sperremodus-bar
+  const adminBar = isAdmin() ? `
+    <div class="admin-bar ${state.adminBlockMode ? 'on' : ''}">
+      <div>
+        ${state.adminBlockMode
+          ? '<b>Sperremodus aktiv.</b> Klikk på en ledig tid for å sperre den for vedlikehold. Klikk på en sperret tid for å åpne den igjen.'
+          : 'Som styre kan du sperre tider for vedlikehold.'}
+      </div>
+      <button onclick="toggleBlockMode()" class="${state.adminBlockMode ? 'btn-active' : ''}">
+        ${state.adminBlockMode ? 'Avslutt sperremodus' : 'Sperremodus'}
+      </button>
+    </div>
+  ` : '';
+
+  return `
+    ${adminBar}
+    <div class="rules-bar">Du booker for <b>${escapeHtml(machineName)}</b>. Du har <b>${myThisWeek} av ${MAX_PER_WEEK}</b> bookinger denne uken (gjelder alle maskiner samlet).</div>
+    <div class="wnav">
+      <div class="wlbl">${formatWeekRange(ws)}</div>
+      <div class="wnav-l">
+        <button onclick="navigateWeek(-1)">← Forrige</button>
+        ${!isCurrentWeek ? `<button onclick="goToCurrentWeek()">I dag</button>` : ''}
+        <button onclick="navigateWeek(1)">Neste →</button>
+      </div>
+    </div>
+    <div class="cal" style="grid-template-columns: ${gridCols};">
+      ${dayHeaders.join('')}
+      ${slotRows}
+    </div>
+    <div class="closed-note">${escapeHtml(CONFIG.closedNote)}</div>
+    <div class="legend">
+      <span><span class="dot"></span>Ledig</span>
+      <span><span class="dot mine"></span>Din booking</span>
+      <span><span class="dot taken"></span>Booket</span>
+      <span><span class="dot maint"></span>Sperret</span>
+    </div>
+    ${machineSwitcher}
+  `;
+}
+
+function renderMobileCalendar(ws, visibleDays, machine, isCurrentWeek) {
+  const validOffsets = visibleDays.map(v => v.index);
+  if (!validOffsets.includes(state.selectedDayOffset)) {
+    state.selectedDayOffset = validOffsets[0] || 0;
+  }
+  const selectedDate = addDays(ws, state.selectedDayOffset);
+  const showToday = isToday(selectedDate);
+  const dateLabel = showToday
+    ? `I dag · ${DAYS[state.selectedDayOffset]} ${selectedDate.getDate()}. ${MONTHS[selectedDate.getMonth()]}`
+    : `${DAYS[state.selectedDayOffset]} ${selectedDate.getDate()}. ${MONTHS[selectedDate.getMonth()]}`;
+
+  const myWeek = state.bookings.filter(b => {
+    const we = addDays(ws, 7);
+    return b.apartment === state.apartment && new Date(b.date) >= ws && new Date(b.date) < we;
+  }).length;
+
+  const currentMachine = CONFIG.machines.find(m => m.id === state.selectedMachine);
+  const machineName = currentMachine ? currentMachine.name : '–';
+
+  const otherMachines = CONFIG.machines.filter(m => m.id !== state.selectedMachine);
+  const machineSwitcher = otherMachines.length > 0 ? `
+    <div class="machine-switch">
+      Bytt maskin: ${otherMachines.map(m =>
+        `<button class="m-link" onclick="selectMachine('${m.id}')">${escapeHtml(m.name)}</button>`
+      ).join(' · ')}
+    </div>
+  ` : '';
+
+  const adminBar = isAdmin() ? `
+    <div class="admin-bar ${state.adminBlockMode ? 'on' : ''}">
+      <div>${state.adminBlockMode ? '<b>Sperremodus aktiv.</b> Trykk en ledig tid for å sperre.' : 'Som styre kan du sperre tider for vedlikehold.'}</div>
+      <button onclick="toggleBlockMode()" class="${state.adminBlockMode ? 'btn-active' : ''}">${state.adminBlockMode ? 'Avslutt' : 'Sperremodus'}</button>
+    </div>
+  ` : '';
+
+  const dayChips = visibleDays.map(({ index: i, date: d }) => {
+    const sel = i === state.selectedDayOffset ? ' selected' : '';
+    const td = isToday(d) ? ' today' : '';
+    return `<button class="day-chip${sel}${td}" onclick="state.selectedDayOffset=${i};render()">
+      <div class="dc-day">${DAYS[i]}</div>
+      <div class="dc-num">${d.getDate()}</div>
+    </button>`;
+  }).join('');
+
+  const slotList = SLOTS.map(slot => renderMobileSlotRow(selectedDate, slot, machine)).join('');
+
+  return `
+    ${adminBar}
+    <div class="rules-bar">Du booker for <b>${escapeHtml(machineName)}</b>. Du har brukt <b>${myWeek} av ${MAX_PER_WEEK}</b> bookinger denne uken.</div>
+    <div class="day-strip">${dayChips}</div>
+    <div class="day-nav">
+      <button class="day-nav-btn" onclick="navigateDay(-1)">‹</button>
+      <div class="day-nav-label">${dateLabel}</div>
+      <button class="day-nav-btn" onclick="navigateDay(1)">›</button>
+    </div>
+    <div class="slot-list">${slotList}</div>
+    <div class="closed-note">${escapeHtml(CONFIG.closedNote)}</div>
+    ${!isCurrentWeek ? `<div class="goto-today"><button onclick="goToCurrentWeek()">Gå til i dag</button></div>` : ''}
+    ${machineSwitcher}
+  `;
+}
+
+function renderMobileSlotRow(date, slot, machine) {
+  const dISO = isoDate(date);
+  const booking = state.bookings.find(b => b.date === dISO && b.slot === slot.id && b.machine === machine);
+  const past = isPast(date, slot.id);
+
+  let statusLabel = 'Ledig', cls = 'av', actionLabel = 'Book', onclick = '';
+
+  if (booking) {
+    if (booking.apartment === 'VEDLIKEHOLD') {
+      cls = 'maint'; statusLabel = 'Sperret for vedlikehold'; actionLabel = '';
+      if (isAdmin()) { onclick = `onclick="cancelBooking('${booking.id}', true)"`; actionLabel = 'Fjern'; }
+    } else if (booking.apartment === state.apartment) {
+      cls = 'mine'; statusLabel = 'Din booking';
+      if (canCancel(booking.date, booking.slot)) {
+        onclick = `onclick="cancelBooking('${booking.id}', false)"`;
+        actionLabel = 'Avbestill';
+      } else {
+        actionLabel = 'Låst';
+      }
+    } else {
+      cls = 'taken'; statusLabel = `Booket av ${escapeHtml(booking.apartment)}`; actionLabel = '';
+    }
+  } else {
+    onclick = `onclick="bookSlot('${dISO}','${slot.id}')"`;
+    if (isAdmin() && state.adminBlockMode) { cls = 'block-target'; actionLabel = 'Sperr'; }
+  }
+
+  if (past) { cls = 'past'; if (!booking) statusLabel = 'Stengt'; actionLabel = ''; onclick = ''; }
+
+  return `
+    <div class="slot-row ${cls}" ${onclick}>
+      <div class="slot-row-left">
+        <div class="slot-row-time">${slot.label}</div>
+        <div class="slot-row-status">${statusLabel}</div>
+      </div>
+      ${actionLabel ? `<div class="slot-row-action">${actionLabel}</div>` : ''}
+    </div>
+  `;
+}
+
+function renderMine() {
+  const upcoming = state.bookings
+    .filter(b => b.apartment === state.apartment && !isPast(new Date(b.date), b.slot))
+    .sort((a, b) => a.date.localeCompare(b.date) || SLOTS.findIndex(s => s.id === a.slot) - SLOTS.findIndex(s => s.id === b.slot));
+
+  if (upcoming.length === 0) {
+    return `<div class="empty">Du har ingen kommende bookinger. Gå til <button class="m-link" onclick="setView('kalender')">Kalender</button> for å booke en tid.</div>`;
+  }
+
+  return `
+    <div class="mine-header">
+      <h3 style="margin: 0;">Kommende (${upcoming.length})</h3>
+      <button onclick="downloadAllUpcomingIcs()" class="ics-all">Last ned alle som kalender</button>
+    </div>
+    ${upcoming.map(b => renderBookingRow(b, true)).join('')}
+  `;
+}
+
+function renderPast() {
+  const past = state.bookings
+    .filter(b => b.apartment === state.apartment && isPast(new Date(b.date), b.slot))
+    .sort((a, b) => b.date.localeCompare(a.date) || SLOTS.findIndex(s => s.id === b.slot) - SLOTS.findIndex(s => s.id === a.slot));
+
+  if (past.length === 0) {
+    return `<div class="empty">Du har ingen tidligere bookinger ennå.</div>`;
+  }
+
+  return `
+    <h3 style="margin-top: 0;">Tidligere bookinger (${past.length})</h3>
+    <p style="color: var(--text-2); font-size: 13px; margin-top: 0; margin-bottom: 16px;">Historikk over vasketider du har brukt.</p>
+    ${past.map(b => renderBookingRow(b, false)).join('')}
+  `;
+}
+
+function renderBookingRow(b, isUpcoming) {
+  const d = new Date(b.date);
+  const slot = SLOTS.find(s => s.id === b.slot);
+  const m = CONFIG.machines.find(x => x.id === b.machine);
+  const dateStr = `${DAYS[(d.getDay()+6)%7]} ${d.getDate()}. ${MONTHS[d.getMonth()]}`;
+  let action;
+  if (!isUpcoming) {
+    action = `<span style="font-size: 12px; color: var(--text-3);">Fullført</span>`;
+  } else if (canCancel(b.date, b.slot)) {
+    action = `
+      <div class="row-actions">
+        <button class="ics-btn" onclick="downloadBookingIcs('${b.id}')" title="Last ned som kalenderhendelse">📅 Kalender</button>
+        <button class="danger" onclick="cancelBooking('${b.id}', false)">Avbestill</button>
+      </div>
+    `;
+  } else {
+    action = `
+      <div class="row-actions">
+        <button class="ics-btn" onclick="downloadBookingIcs('${b.id}')" title="Last ned som kalenderhendelse">📅 Kalender</button>
+        <span style="font-size: 12px; color: var(--text-3);" title="Avbestilling stengt mindre enn ${CONFIG.cancelCutoffMinutes / 60} t før start">Låst</span>
+      </div>
+    `;
+  }
+  return `
+    <div class="row">
+      <div>
+        <div class="date">${dateStr}</div>
+        <div class="time">Kl. ${slot.label} · ${m ? escapeHtml(m.name) : '–'}</div>
+      </div>
+      ${action}
+    </div>
+  `;
+}
+
+function renderRules() {
+  return `
+    <div class="rules-page">
+      <h2 style="margin-top: 0;">Husregler for vaskeriet</h2>
+      <p style="color: var(--text-2); margin: 0 0 28px;">Velkommen til vaskeriet. Disse reglene sikrer at maskinene holder lenge og at vaskeriet fungerer godt for alle naboer.</p>
+
+      <div class="rule-info">
+        <h3 style="margin: 0 0 6px;">Maks 6 timer vasketid per uke</h3>
+        <p style="margin: 0;">Hver leilighet har inntil 6 timer (3 bookinger à 2 timer) per uke. Dette sikrer rettferdig tilgang for alle naboer.</p>
+      </div>
+
+      <div class="rule-warning">
+        <h3 style="margin: 0 0 8px;">Husk å rense lofilter og tømme vanntanken på tørketrommelen etter bruk</h3>
+        <p style="margin: 0;">Tett lofilter er den vanligste årsaken til skader på tørketrommelen, og kan i verste fall føre til brann. Når du tømmer vanntanken samtidig, er trommelen klar til neste bruker.</p>
+      </div>
+
+      <h3>Bruk av maskinen</h3>
+      <ul class="rule-list">
+        <li>Maks 5 kilo tøy per vask. Overbelastning kan ødelegge maskinen og gir dårligere vaskeresultat.</li>
+        <li>Vask BH med spiler i en vaskepose. Det beskytter både plagget og trommelen mot løse spiler.</li>
+      </ul>
+
+      <h3>Booking og vasketid</h3>
+      <ul class="rule-list">
+        <li>Book tiden din i appen før du starter vask.</li>
+        <li>Møter du ikke opp innen 15 minutter etter starttid, regnes tiden som ledig og andre kan ta den.</li>
+        <li>Vaskeriet er åpent mandag til lørdag kl. 08:00–22:00. Maskinene er låst utenom åpningstid.</li>
+      </ul>
+
+      <h3>Etter bruk</h3>
+      <ul class="rule-list">
+        <li>Tørk over maskinen og rydd arbeidsflatene.</li>
+        <li>Tøy som blir liggende igjen, vil bli fjernet.</li>
+      </ul>
+
+      <h3>Kontakt styret</h3>
+      <p>Har du spørsmål, eller vil melde fra om feil, send en e-post til <a href="mailto:uranienborgveien13@styrerommet.no">uranienborgveien13@styrerommet.no</a>. Vi setter pris på at du sier fra.</p>
+
+      <p style="margin-top: 32px; color: var(--text-2); font-style: italic;">Takk for at du tar hensyn til naboene og holder vaskeriet ryddig.</p>
+    </div>
+  `;
+}
+
+function renderAdmin() {
+  const realBookings = state.bookings.filter(b => b.apartment !== 'VEDLIKEHOLD');
+  const blocks = state.bookings.filter(b => b.apartment === 'VEDLIKEHOLD');
+  const total = realBookings.length;
+  const upcoming = state.bookings.filter(b => !isPast(new Date(b.date), b.slot));
+  const upcomingReal = upcoming.filter(b => b.apartment !== 'VEDLIKEHOLD');
+  const upcomingBlocks = upcoming.filter(b => b.apartment === 'VEDLIKEHOLD');
+  const aptCounts = {};
+  realBookings.forEach(b => { aptCounts[b.apartment] = (aptCounts[b.apartment] || 0) + 1; });
+  const uniqueApts = Object.keys(aptCounts).filter(a => a !== 'STYRE' && a !== 'ADMIN').length;
+  const topApt = Object.entries(aptCounts).filter(([a]) => a !== 'STYRE' && a !== 'ADMIN').sort((a,b) => b[1] - a[1])[0];
+
+  const sorted = [...upcoming].sort((a,b) => a.date.localeCompare(b.date) || SLOTS.findIndex(s => s.id === a.slot) - SLOTS.findIndex(s => s.id === b.slot));
+
+  return `
+    <div class="stats">
+      <div class="stat"><div class="l">Totalt bookinger</div><div class="v">${total}</div></div>
+      <div class="stat"><div class="l">Kommende</div><div class="v">${upcomingReal.length}</div></div>
+      <div class="stat"><div class="l">Aktive leiligheter</div><div class="v">${uniqueApts}</div></div>
+      <div class="stat"><div class="l">Aktive sperringer</div><div class="v">${upcomingBlocks.length}</div></div>
+      <div class="stat"><div class="l">Mest aktiv</div><div class="v" style="font-size: 16px; padding-top: 6px;">${topApt ? escapeHtml(topApt[0]) + ' (' + topApt[1] + ')' : '–'}</div></div>
+    </div>
+
+    <h3>Alle kommende bookinger og sperringer</h3>
+    ${sorted.length === 0 ? `<div class="empty">Ingen kommende bookinger.</div>` : `
+      <table class="adm">
+        <thead><tr><th>Dato</th><th>Tid</th><th>Maskin</th><th>Leilighet</th><th>E-post</th><th></th></tr></thead>
+        <tbody>
+          ${sorted.map(b => {
+            const d = new Date(b.date);
+            const slot = SLOTS.find(s => s.id === b.slot);
+            const m = CONFIG.machines.find(x => x.id === b.machine);
+            const isBlock = b.apartment === 'VEDLIKEHOLD';
+            return `<tr${isBlock ? ' style="color: var(--text-2); font-style: italic;"' : ''}>
+              <td>${DAYS[(d.getDay()+6)%7]} ${d.getDate()}. ${MONTHS_S[d.getMonth()]}</td>
+              <td>Kl. ${slot.label}</td>
+              <td>${m ? escapeHtml(m.name) : '–'}</td>
+              <td>${escapeHtml(b.apartment)}</td>
+              <td style="font-size: 12px; color: var(--text-2);">${b.email ? escapeHtml(b.email) : '–'}</td>
+              <td style="text-align:right;"><button class="adm-x" onclick="cancelBooking('${b.id}', true)">Slett</button></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    `}
+
+    ${renderUserManagement()}
+
+    <div style="margin-top: 28px; padding-top: 20px; border-top: 0.5px solid var(--border);">
+      <button class="danger" onclick="resetAll()">Slett alle bookinger</button>
+      <p class="helper">Sletter alle bookinger permanent. Bruk f.eks. ved testing eller nullstilling.</p>
+    </div>
+  `;
+}
+
+function renderUserManagement() {
+  // Samle unike e-post + leilighet fra alle bookinger
+  const usersMap = {};
+  state.bookings.forEach(b => {
+    if (b.email && b.apartment !== 'VEDLIKEHOLD') {
+      if (!usersMap[b.email]) usersMap[b.email] = { apartments: new Set(), count: 0, last: b.createdAt };
+      usersMap[b.email].apartments.add(b.apartment);
+      usersMap[b.email].count++;
+      if (b.createdAt > usersMap[b.email].last) usersMap[b.email].last = b.createdAt;
+    }
+  });
+  const users = Object.entries(usersMap)
+    .map(([email, info]) => ({ email, apartments: [...info.apartments].join(', '), count: info.count, last: info.last }))
+    .sort((a, b) => b.last.localeCompare(a.last));
+
+  return `
+    <h3 style="margin-top: 32px;">Registrerte e-poster</h3>
+    ${users.length === 0 ? `<div class="empty">Ingen registrerte brukere ennå.</div>` : `
+      <table class="adm">
+        <thead><tr><th>E-post</th><th>Leilighet</th><th>Bookinger</th><th></th></tr></thead>
+        <tbody>
+          ${users.map(u => `
+            <tr>
+              <td>${escapeHtml(u.email)}</td>
+              <td>${escapeHtml(u.apartments)}</td>
+              <td>${u.count}</td>
+              <td style="text-align:right;">
+                ${state.blockedEmails.includes(u.email)
+                  ? `<span style="font-size: 12px; color: var(--danger-text);">Sperret</span>`
+                  : `<button class="adm-x" onclick="blockEmail('${escapeHtml(u.email)}')">Sperr</button>`}
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `}
+
+    ${state.blockedEmails.length > 0 ? `
+      <h3 style="margin-top: 24px; color: var(--danger-text);">Sperrede e-poster (${state.blockedEmails.length})</h3>
+      <table class="adm">
+        <tbody>
+          ${state.blockedEmails.map(em => `
+            <tr>
+              <td>${escapeHtml(em)}</td>
+              <td style="text-align:right;"><button class="adm-x" onclick="unblockEmail('${escapeHtml(em)}')">Åpne igjen</button></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    ` : ''}
+  `;
+}
+
+async function blockEmail(email) {
+  if (!confirm(`Sperre ${email}? De kan ikke logge inn før du åpner igjen.`)) return;
+  if (!state.blockedEmails.includes(email)) {
+    if (await blockUserInDb(email)) {
+      state.blockedEmails.push(email);
+      showToast(`${email} er sperret`);
+      render();
+    }
+  }
+}
+async function unblockEmail(email) {
+  if (await unblockUserInDb(email)) {
+    state.blockedEmails = state.blockedEmails.filter(e => e !== email);
+    showToast(`${email} er åpnet igjen`);
+    render();
+  }
+}
+
+async function init() {
+  state.apartment = loadApt();
+  state.email = loadEmail();
+  state.weekStart = getMonday(new Date());
+  state.selectedDayOffset = computeTodayOffset();
+
+  // Sett maskin før første render (basert på lagret leilighet)
+  if (state.apartment) {
+    const floor = parseApartmentFloor(state.apartment);
+    if (floor !== null) {
+      const machineId = `m${floor}`;
+      if (CONFIG.machines.find(m => m.id === machineId)) {
+        state.selectedMachine = machineId;
+      }
+    }
+  }
+
+  // Vis grensesnittet umiddelbart med tomme bookinger
+  render();
+
+  // Hent data fra Supabase i bakgrunnen
+  try {
+    const [bookings, blocked] = await Promise.all([
+      loadBookings(),
+      loadBlockedUsers()
+    ]);
+    state.bookings = bookings;
+    state.blockedEmails = blocked;
+
+    // Sjekk om innlogget bruker er sperret
+    if (state.email && state.blockedEmails.includes(state.email)) {
+      state.apartment = null; state.email = null;
+      clearApt(); clearEmail();
+    }
+    render();
+  } catch (e) {
+    console.error('init:', e);
+  }
+
+  // Auto-refresh hvert 30. sekund når appen er aktiv
+  setInterval(async () => {
+    if (document.hidden) return;
+    try {
+      state.bookings = await loadBookings();
+      render();
+    } catch (e) { console.error('auto-refresh:', e); }
+  }, 30000);
+
+  // Refresh når fanen blir synlig igjen
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      loadBookings().then(b => { state.bookings = b; render(); }).catch(e => console.error(e));
+    }
+  });
+}
+
+init();
+</script>
+</body>
+</html>
